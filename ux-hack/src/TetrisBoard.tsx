@@ -8,7 +8,7 @@ const GRID_COUNT = 12;
 const CELL_SIZE = BOARD_SIZE / GRID_COUNT;
 const SIDEBAR_WIDTH = 280;
 const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
-const CORRECT_PIECE_COLOR = "#39d98a";
+const CORRECT_PIECE_COLOR = "#FFFF00";
 const DEFAULT_PIECE_BORDER = "#7e8cae";
 
 type ManifestPiece = {
@@ -210,7 +210,7 @@ export default () => {
                   borderColor={
                     isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER
                   }
-                  borderWidth={isCorrect ? 3 : 1.5}
+                  borderWidth={isCorrect ? 6 : 1.5}
                   onDragEnd={(e: any) =>
                     movePiece(entry.piece.id, e.target.x(), e.target.y())
                   }
