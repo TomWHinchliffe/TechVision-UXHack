@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Stage, Layer, Image, Rect, Text } from "react-konva";
 import useImage from "use-image";
 import manifestData from "./data";
@@ -127,6 +127,15 @@ export default () => {
     return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
   }).length;
 
+  
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  useEffect(() => {
+    if (solvedCount === pieces.length && pieces.length > 0) {
+      setIsCompleted(true);
+    }
+  }, [solvedCount, pieces.length]);
+
   return (
     <div className="game-shell">
       <div className="game-header">
@@ -145,6 +154,9 @@ export default () => {
               width={BOARD_SIZE}
               height={BOARD_SIZE}
               fill="#111a2b"
+              stroke={isCompleted ? "#00FF00" : "transparent"}
+              strokeWidth={8}
+              listening={false}
             />
             {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
               <Rect
@@ -221,9 +233,11 @@ export default () => {
                     maxY: BOARD_SIZE - entry.piece.hCells * CELL_SIZE,
                   }}
                   borderColor={
-                    isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER
+                    isCompleted ? DEFAULT_PIECE_BORDER : (isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER)
                   }
-                  borderWidth={isCorrect ? 6 : 1.5}
+                  borderWidth={
+                    isCompleted ? 1.5 : (isCorrect ? 6 : 1.5)
+                  }
                   onDragEnd={(e: any) =>
                     movePiece(entry.piece.id, e.target.x(), e.target.y())
                   }
