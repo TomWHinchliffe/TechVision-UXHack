@@ -66,10 +66,55 @@ body {
 .game-canvas-wrap {
   width: fit-content;
   margin: 0 auto;
+  position: relative;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #94c7ad;
   box-shadow:
     0 14px 35px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.login-form-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.login-form-input,
+.login-form-button {
+  position: absolute;
+  height: 46px;
+  border-radius: 8px;
+  border: 0;
+  padding: 0 12px;
+  font-size: 16px;
+}
+
+.login-form-input {
+  background: transparent;
+  outline:none;
+  width: 380px;
+}
+
+.login-form-button {
+  cursor: pointer;
+  font-weight: 600;
+  width: 385px;
+  height:60px;
+  background-color: #0C453d;
+  color:white;
+  font-size: 28px;
+}
+
+.login-form-error {
+  position: absolute;
+  left: 150px;
+  top: 452px;
+  margin: 0;
+  color: transparent;
+  font-size: 14px;
+}
+
+.success-shell {
+  max-width: 760px;
 }
