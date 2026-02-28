@@ -53,6 +53,7 @@ const Piece = ({
   x,
   y,
   onDragEnd,
+  draggable = true,
   borderColor = DEFAULT_PIECE_BORDER,
   borderWidth = 1,
 }: any) => {
@@ -65,7 +66,7 @@ const Piece = ({
       y={y}
       width={piece.wCells * CELL_SIZE}
       height={piece.hCells * CELL_SIZE}
-      draggable
+      draggable={draggable}
       onDragEnd={onDragEnd}
       onDragStart={(e) => e.target.moveToTop()}
       stroke={borderColor}
@@ -207,6 +208,7 @@ export default () => {
                   piece={entry.piece}
                   x={entry.x}
                   y={entry.y}
+                  draggable={!isCorrect}
                   borderColor={
                     isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER
                   }
