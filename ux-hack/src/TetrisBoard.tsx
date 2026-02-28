@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Stage, Layer, Image, Rect, Text } from "react-konva";
 import useImage from "use-image";
 import manifestData from "./data";
@@ -48,11 +48,6 @@ const clampToBoard = (value: number, max: number) =>
 
 const clampToStage = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
-
-const loginInputRef = useRef<HTMLInputElement>(null);
-const passwordInputRef = useRef<HTMLInputElement>(null);
-
-const [completedImage] = useImage("/assests/image.jpeg");
 
 const Piece = ({
   piece,
@@ -143,7 +138,6 @@ export default () => {
   }, [solvedCount, pieces.length]);
 
   return (
-    
     <div className="game-shell">
       <div className="game-header">
         <h1 className="game-title">Log In.</h1>
@@ -253,6 +247,5 @@ export default () => {
         </Stage>
       </div>
     </div>
-
   );
 };
