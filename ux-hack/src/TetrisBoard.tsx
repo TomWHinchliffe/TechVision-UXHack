@@ -53,6 +53,8 @@ const Piece = ({
   x,
   y,
   onDragEnd,
+  dragBounds,
+  draggable = true,
   borderColor = DEFAULT_PIECE_BORDER,
   borderWidth = 1,
 }: any) => {
@@ -65,12 +67,16 @@ const Piece = ({
       y={y}
       width={piece.wCells * CELL_SIZE}
       height={piece.hCells * CELL_SIZE}
-      draggable
+      draggable={draggable}
+      dragBoundFunc={(pos) => ({
+        x: Math.min(Math.max(pos.x, dragBounds.minX), dragBounds.maxX),
+        y: Math.min(Math.max(pos.y, dragBounds.minY), dragBounds.maxY),
+      })}
       onDragEnd={onDragEnd}
       onDragStart={(e) => e.target.moveToTop()}
       stroke={borderColor}
       strokeWidth={borderWidth}
-      shadowBlur={5}
+      shadowBlur={0}
       opacity={1}
     />
   );
@@ -207,6 +213,13 @@ export default () => {
                   piece={entry.piece}
                   x={entry.x}
                   y={entry.y}
+                  draggable={!isCorrect}
+                  dragBounds={{
+                    minX: 0,
+                    minY: 0,
+                    maxX: STAGE_WIDTH - entry.piece.wCells * CELL_SIZE,
+                    maxY: BOARD_SIZE - entry.piece.hCells * CELL_SIZE,
+                  }}
                   borderColor={
                     isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER
                   }
