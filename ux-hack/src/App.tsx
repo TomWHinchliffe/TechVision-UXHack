@@ -1,10 +1,8 @@
-import TetrisGame from './TetrisGame';
-import Login from './Login'
-import { useState, useEffect } from 'react';
+import TetrisBoard from './TetrisBoard';
 
 function App() {
   return (
-    <Login />
+    <TetrisBoard />
   );
 }
 
