@@ -153,7 +153,7 @@ export default () => {
               y={0}
               width={BOARD_SIZE}
               height={BOARD_SIZE}
-              fill="#111a2b"
+              fill="#5c6457"
               listening={false}
             />
             {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
@@ -163,7 +163,7 @@ export default () => {
                 y={Math.floor(i / GRID_COUNT) * CELL_SIZE}
                 width={CELL_SIZE}
                 height={CELL_SIZE}
-                stroke="#8ea3d6"
+                stroke="#a4ad9b"
                 strokeWidth={1.35}
                 listening={false}
               />
@@ -173,21 +173,7 @@ export default () => {
               y={0}
               width={SIDEBAR_WIDTH}
               height={BOARD_SIZE}
-              fill="#4f6ed6"
-              stroke="#d5e2ff"
-              strokeWidth={1.5}
-              listening={false}
-            />
-            <Rect
-              x={BOARD_SIZE + 12}
-              y={56}
-              width={SIDEBAR_WIDTH - 24}
-              height={BOARD_SIZE - 68}
-              cornerRadius={12}
-              fill="#6987e6"
-              stroke="#e7efff"
-              strokeWidth={1}
-              opacity={0.35}
+              fill="#a0ae8a"
               listening={false}
             />
             <Text
