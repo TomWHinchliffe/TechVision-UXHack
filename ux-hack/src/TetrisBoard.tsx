@@ -1,54 +1,142 @@
-import React, { useState } from 'react';
-import { Stage, Layer, Image, Rect } from 'react-konva';
-import useImage from 'use-image';
-import manifestData from './data'; 
+import { useMemo, useState } from "react";
+import { Stage, Layer, Image, Rect, Text } from "react-konva";
+import useImage from "use-image";
+import manifestData from "./data";
 
-const STAGE_SIZE = 720; // Slightly larger for 12x12
+const BOARD_SIZE = 720;
 const GRID_COUNT = 12;
-const CELL_SIZE = STAGE_SIZE / GRID_COUNT;
+const CELL_SIZE = BOARD_SIZE / GRID_COUNT;
+const SIDEBAR_WIDTH = 280;
+const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
 
-const Piece = ({ piece }: any) => {
-  const [img] = useImage(`/tetris_pieces/${piece.url}`);
-  const [pos, setPos] = useState({
-    x: Math.random() * (STAGE_SIZE - CELL_SIZE * 2),
-    y: Math.random() * (STAGE_SIZE - CELL_SIZE * 2),
-  });
+type ManifestPiece = {
+  id: number;
+  url: string;
+  gridX: number;
+  gridY: number;
+  wCells: number;
+  hCells: number;
+};
 
-  const correctX = piece.gridX * CELL_SIZE;
-  const correctY = piece.gridY * CELL_SIZE;
+type PiecePosition = {
+  piece: ManifestPiece;
+  x: number;
+  y: number;
+};
 
-  const handleDragEnd = (e: any) => {
-    const nx = Math.round(e.target.x() / CELL_SIZE) * CELL_SIZE;
-    const ny = Math.round(e.target.y() / CELL_SIZE) * CELL_SIZE;
-    setPos({ x: nx, y: ny });
+const getSpawnPosition = (piece: ManifestPiece) => {
+  const pieceWidth = piece.wCells * CELL_SIZE;
+  const pieceHeight = piece.hCells * CELL_SIZE;
+  const spawnAreaX = BOARD_SIZE + 20;
+  const spawnAreaY = 80;
+  const spawnAreaWidth = SIDEBAR_WIDTH - 40;
+  const spawnAreaHeight = BOARD_SIZE - 120;
+  const maxX = spawnAreaX + Math.max(0, spawnAreaWidth - pieceWidth);
+  const maxY = spawnAreaY + Math.max(0, spawnAreaHeight - pieceHeight);
+
+  return {
+    x: spawnAreaX + Math.random() * Math.max(1, maxX - spawnAreaX),
+    y: spawnAreaY + Math.random() * Math.max(1, maxY - spawnAreaY),
   };
+};
 
-  const isCorrect = Math.abs(pos.x - correctX) < 1 && Math.abs(pos.y - correctY) < 1;
+const clampToBoard = (value: number, max: number) =>
+  Math.min(Math.max(value, 0), max);
+
+const clampToStage = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const Piece = ({
+  piece,
+  x,
+  y,
+  onDragEnd,
+  borderColor = "#444",
+  borderWidth = 1,
+}: any) => {
+  const [img] = useImage(`/tetris_pieces/${piece.url}`);
 
   return (
     <Image
       image={img}
-      x={pos.x}
-      y={pos.y}
+      x={x}
+      y={y}
       width={piece.wCells * CELL_SIZE}
       height={piece.hCells * CELL_SIZE}
       draggable
-      onDragEnd={handleDragEnd}
+      onDragEnd={onDragEnd}
       onDragStart={(e) => e.target.moveToTop()}
-      // Green border if correct, otherwise subtle gray
-      stroke={isCorrect ? '#00FF00' : '#444'}
-      strokeWidth={isCorrect ? 3 : 1}
-      shadowBlur={isCorrect ? 0 : 5}
+      stroke={borderColor}
+      strokeWidth={borderWidth}
+      shadowBlur={5}
       opacity={1}
     />
   );
 };
 
 export default () => {
+  const pieces = useMemo(() => manifestData as ManifestPiece[], []);
+  const [piecePositions, setPiecePositions] = useState<PiecePosition[]>(() =>
+    pieces.map((piece) => {
+      const spawn = getSpawnPosition(piece);
+      return { piece, x: spawn.x, y: spawn.y };
+    }),
+  );
+
+  const movePiece = (
+    pieceId: number,
+    targetX: number,
+    targetY: number,
+  ) => {
+    const targetPiece = pieces.find((p) => p.id === pieceId);
+    if (!targetPiece) return;
+
+    const width = targetPiece.wCells * CELL_SIZE;
+    const height = targetPiece.hCells * CELL_SIZE;
+
+    const isInsideBoard =
+      targetX >= 0 &&
+      targetY >= 0 &&
+      targetX + width <= BOARD_SIZE &&
+      targetY + height <= BOARD_SIZE;
+
+    const nextX = isInsideBoard
+      ? clampToBoard(
+          Math.round(targetX / CELL_SIZE) * CELL_SIZE,
+          BOARD_SIZE - width,
+        )
+      : clampToStage(targetX, BOARD_SIZE + 8, STAGE_WIDTH - width - 8);
+    const nextY = isInsideBoard
+      ? clampToBoard(
+          Math.round(targetY / CELL_SIZE) * CELL_SIZE,
+          BOARD_SIZE - height,
+        )
+      : clampToStage(targetY, 8, BOARD_SIZE - height - 8);
+
+    setPiecePositions((prev) =>
+      prev.map((entry) =>
+        entry.piece.id === pieceId ? { ...entry, x: nextX, y: nextY } : entry,
+      ),
+    );
+  };
+
+  const solvedCount = piecePositions.filter((entry) => {
+    const correctX = entry.piece.gridX * CELL_SIZE;
+    const correctY = entry.piece.gridY * CELL_SIZE;
+    return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
+  }).length;
+
   return (
-    <div style={{ background: '#111', padding: '20px' }}>
-      <Stage width={STAGE_SIZE} height={STAGE_SIZE}>
+    <div style={{ background: "#111", padding: "20px" }}>
+      <Stage width={STAGE_WIDTH} height={BOARD_SIZE}>
         <Layer>
+          <Rect
+            x={0}
+            y={0}
+            width={BOARD_SIZE}
+            height={BOARD_SIZE}
+            fill="#0f1320"
+          />
           {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
             <Rect
               key={i}
@@ -56,15 +144,52 @@ export default () => {
               y={Math.floor(i / GRID_COUNT) * CELL_SIZE}
               width={CELL_SIZE}
               height={CELL_SIZE}
-              stroke="#222"
+              stroke="#6f82b8"
+              strokeWidth={1.2}
               listening={false}
             />
           ))}
+          <Rect
+            x={BOARD_SIZE}
+            y={0}
+            width={SIDEBAR_WIDTH}
+            height={BOARD_SIZE}
+            fill="#2f5fa8"
+            stroke="#8bb2ff"
+            strokeWidth={1}
+            listening={false}
+          />
+          <Text
+            x={BOARD_SIZE + 16}
+            y={20}
+            text={`Pieces (${solvedCount}/${pieces.length})`}
+            fontSize={18}
+            fill="#f5f5f5"
+            listening={false}
+          />
         </Layer>
         <Layer>
-          {manifestData.map((p) => (
-            <Piece key={p.id} piece={p} />
-          ))}
+          {piecePositions.map((entry) => {
+            const correctX = entry.piece.gridX * CELL_SIZE;
+            const correctY = entry.piece.gridY * CELL_SIZE;
+            const isCorrect =
+              Math.abs(entry.x - correctX) < 1 &&
+              Math.abs(entry.y - correctY) < 1;
+
+            return (
+              <Piece
+                key={entry.piece.id}
+                piece={entry.piece}
+                x={entry.x}
+                y={entry.y}
+                borderColor={isCorrect ? "#00FF00" : "#666"}
+                borderWidth={isCorrect ? 3 : 1}
+                onDragEnd={(e: any) =>
+                  movePiece(entry.piece.id, e.target.x(), e.target.y())
+                }
+              />
+            );
+          })}
         </Layer>
       </Stage>
     </div>
