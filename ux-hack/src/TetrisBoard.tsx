@@ -144,7 +144,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
     return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
   }).length;
 
-  const [isCompleted, setIsCompleted] = useState(true);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
     if (solvedCount === pieces.length && pieces.length > 0) {
@@ -272,34 +272,40 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
             })}
           </Layer>
         </Stage>
-        <form className="login-form-overlay" onSubmit={handleLoginSubmit}>
-          <input
-            className="login-form-input"
-            style={{ left: USERNAME_INPUT_X, top: USERNAME_INPUT_Y }}
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            autoComplete="username"
-          />
-          <input
-            className="login-form-input"
-            style={{ left: PASSWORD_INPUT_X, top: PASSWORD_INPUT_Y }}
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="current-password"
-          />
-          <button
-            className="login-form-button"
-            style={{ left: SUBMIT_BUTTON_X, top: SUBMIT_BUTTON_Y }}
-            type="submit"
-          >
-            Login
-          </button>
-          {loginError ? <p className="login-form-error">{loginError}</p> : null}
-        </form>
+        {isCompleted ? (
+          <form className="login-form-overlay" onSubmit={handleLoginSubmit}>
+            <input
+              className="login-form-input"
+              style={{ left: USERNAME_INPUT_X, top: USERNAME_INPUT_Y }}
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+            />
+            <input
+              className="login-form-input"
+              style={{ left: PASSWORD_INPUT_X, top: PASSWORD_INPUT_Y }}
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+            />
+            <button
+              className="login-form-button"
+              style={{ left: SUBMIT_BUTTON_X, top: SUBMIT_BUTTON_Y }}
+              type="submit"
+            >
+              Login
+            </button>
+            {loginError ? (
+              <p className="login-form-error">{loginError}</p>
+            ) : null}
+          </form>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
