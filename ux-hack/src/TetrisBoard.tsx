@@ -10,7 +10,16 @@ const CELL_SIZE = BOARD_SIZE / GRID_COUNT;
 const SIDEBAR_WIDTH = 280;
 const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
 const CORRECT_PIECE_COLOR = "#FFFF00";
+
 const DEFAULT_PIECE_BORDER = "#5e6960";
+const LOGIN_USERNAME = "admin";
+const LOGIN_PASSWORD = "password123";
+const USERNAME_INPUT_X = 170;
+const USERNAME_INPUT_Y = 269;
+const PASSWORD_INPUT_X = 170;
+const PASSWORD_INPUT_Y = 420;
+const SUBMIT_BUTTON_X = 165;
+const SUBMIT_BUTTON_Y = 530;
 
 type ManifestPiece = {
   id: number;
@@ -83,8 +92,15 @@ const Piece = ({
   );
 };
 
-export default () => {
+type TetrisBoardProps = {
+  onLoginSuccess: () => void;
+};
+
+export default ({ onLoginSuccess }: TetrisBoardProps) => {
   const [fullBoardImage] = useImage(fullImage);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
   const pieces = useMemo(() => manifestData as ManifestPiece[], []);
   const [piecePositions, setPiecePositions] = useState<PiecePosition[]>(() =>
     pieces.map((piece) => {
@@ -136,6 +152,18 @@ export default () => {
       setIsCompleted(true);
     }
   }, [solvedCount, pieces.length]);
+
+  const handleLoginSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (username === LOGIN_USERNAME && password === LOGIN_PASSWORD) {
+      setLoginError("");
+      onLoginSuccess();
+      return;
+    }
+
+    setLoginError("Invalid username or password");
+  };
 
   return (
     <div className="game-shell">
@@ -245,6 +273,40 @@ export default () => {
             })}
           </Layer>
         </Stage>
+        {isCompleted ? (
+          <form className="login-form-overlay" onSubmit={handleLoginSubmit}>
+            <input
+              className="login-form-input"
+              style={{ left: USERNAME_INPUT_X, top: USERNAME_INPUT_Y }}
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              autoComplete="username"
+            />
+            <input
+              className="login-form-input"
+              style={{ left: PASSWORD_INPUT_X, top: PASSWORD_INPUT_Y }}
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+            />
+            <button
+              className="login-form-button"
+              style={{ left: SUBMIT_BUTTON_X, top: SUBMIT_BUTTON_Y }}
+              type="submit"
+            >
+              Login
+            </button>
+            {loginError ? (
+              <p className="login-form-error">{loginError}</p>
+            ) : null}
+          </form>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
