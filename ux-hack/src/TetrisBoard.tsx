@@ -10,7 +10,8 @@ const CELL_SIZE = BOARD_SIZE / GRID_COUNT;
 const SIDEBAR_WIDTH = 280;
 const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
 const CORRECT_PIECE_COLOR = "#FFFF00";
-const DEFAULT_PIECE_BORDER = "#7e8cae";
+
+const DEFAULT_PIECE_BORDER = "#5e6960";
 const LOGIN_USERNAME = "admin";
 const LOGIN_PASSWORD = "password123";
 const USERNAME_INPUT_X = 170;
@@ -169,8 +170,8 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
       <div className="game-header">
         <h1 className="game-title">Log In.</h1>
         <p className="game-subtitle">
-          Drag and drop pieces of the login page from the tray into the 12x12
-          board. Pieces snap to the grid when dropped inside.
+          Drag and drop pieces from the tray to build the login page in the 12x12 board. Pieces snap to
+          the grid when dropped inside. Enjoy :)
         </p>
       </div>
       <div
@@ -184,7 +185,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
               y={0}
               width={BOARD_SIZE}
               height={BOARD_SIZE}
-              fill="#5c6457"
+              fill="#566d58"
               listening={false}
             />
             {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
@@ -194,8 +195,8 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
                 y={Math.floor(i / GRID_COUNT) * CELL_SIZE}
                 width={CELL_SIZE}
                 height={CELL_SIZE}
-                stroke="#a4ad9b"
-                strokeWidth={1.35}
+                stroke="#9ca395"
+                strokeWidth={3}
                 listening={false}
               />
             ))}
@@ -213,7 +214,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
               y={0}
               width={SIDEBAR_WIDTH}
               height={BOARD_SIZE}
-              fill="#a0ae8a"
+              fill="#536355"
               listening={false}
             />
             <Text
