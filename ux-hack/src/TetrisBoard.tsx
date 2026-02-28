@@ -151,7 +151,7 @@ export default () => {
           the grid when dropped inside.
         </p>
       </div>
-      <div className="game-canvas-wrap">
+      <div style={{border: isCompleted ? "4px solid #00FF00" : "none"}} className="game-canvas-wrap">
         <Stage width={STAGE_WIDTH} height={BOARD_SIZE}>
           <Layer>
             <Rect
@@ -160,8 +160,6 @@ export default () => {
               width={BOARD_SIZE}
               height={BOARD_SIZE}
               fill="#111a2b"
-              stroke={isCompleted ? "#00FF00" : "transparent"}
-              strokeWidth={8}
               listening={false}
             />
             {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
