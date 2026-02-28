@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { Stage, Layer, Image, Rect, Text } from "react-konva";
 import useImage from "use-image";
 import manifestData from "./data";
+import fullImage from "./assets/image.jpeg";
 
 const BOARD_SIZE = 720;
 const GRID_COUNT = 12;
@@ -88,6 +89,7 @@ const Piece = ({
 };
 
 export default () => {
+  const [fullBoardImage] = useImage(fullImage);
   const pieces = useMemo(() => manifestData as ManifestPiece[], []);
   const [piecePositions, setPiecePositions] = useState<PiecePosition[]>(() =>
     pieces.map((piece) => {
@@ -132,7 +134,6 @@ export default () => {
     return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
   }).length;
 
-  
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
@@ -145,13 +146,16 @@ export default () => {
     
     <div className="game-shell">
       <div className="game-header">
-        <h1 className="game-title">Tetris Puzzle Board</h1>
+        <h1 className="game-title">Log In.</h1>
         <p className="game-subtitle">
-          Drag pieces from the right tray into the 12×12 board. Pieces snap to
+          Drag and drop pieces of the login page from the tray into the 12x12 board. Pieces snap to
           the grid when dropped inside.
         </p>
       </div>
-      <div style={{border: isCompleted ? "4px solid #00FF00" : "none"}} className="game-canvas-wrap">
+      <div
+        style={{ border: isCompleted ? "4px solid #00FF00" : "none" }}
+        className="game-canvas-wrap"
+      >
         <Stage width={STAGE_WIDTH} height={BOARD_SIZE}>
           <Layer>
             <Rect
@@ -174,6 +178,15 @@ export default () => {
                 listening={false}
               />
             ))}
+            <Image
+              visible={isCompleted ? true : false}
+              image={fullBoardImage}
+              x={0}
+              y={0}
+              width={BOARD_SIZE}
+              height={BOARD_SIZE}
+              listening={false}
+            />
             <Rect
               x={BOARD_SIZE}
               y={0}
@@ -215,7 +228,7 @@ export default () => {
               listening={false}
             />
           </Layer>
-          <Layer>
+          <Layer visible={isCompleted ? false : true}>
             {piecePositions.map((entry) => {
               const correctX = entry.piece.gridX * CELL_SIZE;
               const correctY = entry.piece.gridY * CELL_SIZE;
@@ -237,11 +250,13 @@ export default () => {
                     maxY: BOARD_SIZE - entry.piece.hCells * CELL_SIZE,
                   }}
                   borderColor={
-                    isCompleted ? DEFAULT_PIECE_BORDER : (isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER)
+                    isCompleted
+                      ? DEFAULT_PIECE_BORDER
+                      : isCorrect
+                        ? CORRECT_PIECE_COLOR
+                        : DEFAULT_PIECE_BORDER
                   }
-                  borderWidth={
-                    isCompleted ? 1.5 : (isCorrect ? 6 : 1.5)
-                  }
+                  borderWidth={isCompleted ? 1.5 : isCorrect ? 6 : 1.5}
                   onDragEnd={(e: any) =>
                     movePiece(entry.piece.id, e.target.x(), e.target.y())
                   }
