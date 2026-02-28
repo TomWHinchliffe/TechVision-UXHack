@@ -1,4 +1,4 @@
-export default [
+export default[
     {
         "id": 0,
         "url": "piece_0.png",
