@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Stage, Layer, Image, Line, Rect } from 'react-konva';
 import useImage from 'use-image';
 
-const BLOCK_SNAP_SIZE = 30; // Your grid size
+const BLOCK_SNAP_SIZE = 60; // Your grid size
 const TOTAL_PIECES = 25; 
 
 // This component now handles scaling
