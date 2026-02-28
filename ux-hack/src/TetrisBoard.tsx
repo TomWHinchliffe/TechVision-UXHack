@@ -139,9 +139,9 @@ export default () => {
   return (
     <div className="game-shell">
       <div className="game-header">
-        <h1 className="game-title">Tetris Puzzle Board</h1>
+        <h1 className="game-title">Log In.</h1>
         <p className="game-subtitle">
-          Drag pieces from the right tray into the 12×12 board. Pieces snap to
+          Drag and drop pieces of the login page from the tray into the 12x12 board. Pieces snap to
           the grid when dropped inside.
         </p>
       </div>
