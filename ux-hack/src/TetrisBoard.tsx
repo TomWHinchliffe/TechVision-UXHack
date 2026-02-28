@@ -171,7 +171,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
         <h1 className="game-title">Log In.</h1>
         <p className="game-subtitle">
           Drag and drop pieces from the tray to build the login page in the 12x12 board. Pieces snap to
-          the grid when dropped inside. Enjoy :)
+          the grid when dropped inside. The username is "admin", and the password is "password123". Login if you dare! Enjoy :)
         </p>
       </div>
       <div
