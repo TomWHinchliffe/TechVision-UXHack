@@ -8,6 +8,8 @@ const GRID_COUNT = 12;
 const CELL_SIZE = BOARD_SIZE / GRID_COUNT;
 const SIDEBAR_WIDTH = 280;
 const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
+const CORRECT_PIECE_COLOR = "#39d98a";
+const DEFAULT_PIECE_BORDER = "#7e8cae";
 
 type ManifestPiece = {
   id: number;
@@ -51,7 +53,7 @@ const Piece = ({
   x,
   y,
   onDragEnd,
-  borderColor = "#444",
+  borderColor = DEFAULT_PIECE_BORDER,
   borderWidth = 1,
 }: any) => {
   const [img] = useImage(`/tetris_pieces/${piece.url}`);
@@ -83,11 +85,7 @@ export default () => {
     }),
   );
 
-  const movePiece = (
-    pieceId: number,
-    targetX: number,
-    targetY: number,
-  ) => {
+  const movePiece = (pieceId: number, targetX: number, targetY: number) => {
     const targetPiece = pieces.find((p) => p.id === pieceId);
     if (!targetPiece) return;
 
@@ -100,18 +98,15 @@ export default () => {
       targetX + width <= BOARD_SIZE &&
       targetY + height <= BOARD_SIZE;
 
-    const nextX = isInsideBoard
-      ? clampToBoard(
-          Math.round(targetX / CELL_SIZE) * CELL_SIZE,
-          BOARD_SIZE - width,
-        )
-      : clampToStage(targetX, BOARD_SIZE + 8, STAGE_WIDTH - width - 8);
-    const nextY = isInsideBoard
-      ? clampToBoard(
-          Math.round(targetY / CELL_SIZE) * CELL_SIZE,
-          BOARD_SIZE - height,
-        )
-      : clampToStage(targetY, 8, BOARD_SIZE - height - 8);
+    const nextX = clampToBoard(
+      Math.round(targetX / CELL_SIZE) * CELL_SIZE,
+      BOARD_SIZE - width,
+    );
+
+    const nextY = clampToBoard(
+      Math.round(targetY / CELL_SIZE) * CELL_SIZE,
+      BOARD_SIZE - height,
+    );
 
     setPiecePositions((prev) =>
       prev.map((entry) =>
@@ -127,71 +122,104 @@ export default () => {
   }).length;
 
   return (
-    <div style={{ background: "#111", padding: "20px" }}>
-      <Stage width={STAGE_WIDTH} height={BOARD_SIZE}>
-        <Layer>
-          <Rect
-            x={0}
-            y={0}
-            width={BOARD_SIZE}
-            height={BOARD_SIZE}
-            fill="#0f1320"
-          />
-          {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
+    <div className="game-shell">
+      <div className="game-header">
+        <h1 className="game-title">Tetris Puzzle Board</h1>
+        <p className="game-subtitle">
+          Drag pieces from the right tray into the 12×12 board. Pieces snap to
+          the grid when dropped inside.
+        </p>
+      </div>
+      <div className="game-canvas-wrap">
+        <Stage width={STAGE_WIDTH} height={BOARD_SIZE}>
+          <Layer>
             <Rect
-              key={i}
-              x={(i % GRID_COUNT) * CELL_SIZE}
-              y={Math.floor(i / GRID_COUNT) * CELL_SIZE}
-              width={CELL_SIZE}
-              height={CELL_SIZE}
-              stroke="#6f82b8"
-              strokeWidth={1.2}
+              x={0}
+              y={0}
+              width={BOARD_SIZE}
+              height={BOARD_SIZE}
+              fill="#111a2b"
+            />
+            {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
+              <Rect
+                key={i}
+                x={(i % GRID_COUNT) * CELL_SIZE}
+                y={Math.floor(i / GRID_COUNT) * CELL_SIZE}
+                width={CELL_SIZE}
+                height={CELL_SIZE}
+                stroke="#8ea3d6"
+                strokeWidth={1.35}
+                listening={false}
+              />
+            ))}
+            <Rect
+              x={BOARD_SIZE}
+              y={0}
+              width={SIDEBAR_WIDTH}
+              height={BOARD_SIZE}
+              fill="#4f6ed6"
+              stroke="#d5e2ff"
+              strokeWidth={1.5}
               listening={false}
             />
-          ))}
-          <Rect
-            x={BOARD_SIZE}
-            y={0}
-            width={SIDEBAR_WIDTH}
-            height={BOARD_SIZE}
-            fill="#2f5fa8"
-            stroke="#8bb2ff"
-            strokeWidth={1}
-            listening={false}
-          />
-          <Text
-            x={BOARD_SIZE + 16}
-            y={20}
-            text={`Pieces (${solvedCount}/${pieces.length})`}
-            fontSize={18}
-            fill="#f5f5f5"
-            listening={false}
-          />
-        </Layer>
-        <Layer>
-          {piecePositions.map((entry) => {
-            const correctX = entry.piece.gridX * CELL_SIZE;
-            const correctY = entry.piece.gridY * CELL_SIZE;
-            const isCorrect =
-              Math.abs(entry.x - correctX) < 1 &&
-              Math.abs(entry.y - correctY) < 1;
+            <Rect
+              x={BOARD_SIZE + 12}
+              y={56}
+              width={SIDEBAR_WIDTH - 24}
+              height={BOARD_SIZE - 68}
+              cornerRadius={12}
+              fill="#6987e6"
+              stroke="#e7efff"
+              strokeWidth={1}
+              opacity={0.35}
+              listening={false}
+            />
+            <Text
+              x={BOARD_SIZE + 16}
+              y={20}
+              text={`Pieces: ${solvedCount}/${pieces.length}`}
+              fontSize={21}
+              fontStyle="bold"
+              fill="#ffffff"
+              listening={false}
+            />
+            <Text
+              x={BOARD_SIZE + 16}
+              y={48}
+              width={SIDEBAR_WIDTH - 26}
+              text="Piece Tray"
+              fontSize={14}
+              fill="#eef3ff"
+              listening={false}
+            />
+          </Layer>
+          <Layer>
+            {piecePositions.map((entry) => {
+              const correctX = entry.piece.gridX * CELL_SIZE;
+              const correctY = entry.piece.gridY * CELL_SIZE;
+              const isCorrect =
+                Math.abs(entry.x - correctX) < 1 &&
+                Math.abs(entry.y - correctY) < 1;
 
-            return (
-              <Piece
-                key={entry.piece.id}
-                piece={entry.piece}
-                x={entry.x}
-                y={entry.y}
-                borderColor={isCorrect ? "#00FF00" : "#666"}
-                borderWidth={isCorrect ? 3 : 1}
-                onDragEnd={(e: any) =>
-                  movePiece(entry.piece.id, e.target.x(), e.target.y())
-                }
-              />
-            );
-          })}
-        </Layer>
-      </Stage>
+              return (
+                <Piece
+                  key={entry.piece.id}
+                  piece={entry.piece}
+                  x={entry.x}
+                  y={entry.y}
+                  borderColor={
+                    isCorrect ? CORRECT_PIECE_COLOR : DEFAULT_PIECE_BORDER
+                  }
+                  borderWidth={isCorrect ? 3 : 1.5}
+                  onDragEnd={(e: any) =>
+                    movePiece(entry.piece.id, e.target.x(), e.target.y())
+                  }
+                />
+              );
+            })}
+          </Layer>
+        </Stage>
+      </div>
     </div>
   );
 };
