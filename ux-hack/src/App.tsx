@@ -1,8 +1,8 @@
-import TetrisGame from './TetrisGame';
+import TetrisBoard from './TetrisBoard';
 
 function App() {
   return (
-    <TetrisGame />
+    <TetrisBoard />
   );
 }
 
