@@ -10,7 +10,7 @@ const CELL_SIZE = BOARD_SIZE / GRID_COUNT;
 const SIDEBAR_WIDTH = 280;
 const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
 const CORRECT_PIECE_COLOR = "#FFFF00";
-const DEFAULT_PIECE_BORDER = "#7e8cae";
+const DEFAULT_PIECE_BORDER = "#5e6960";
 
 type ManifestPiece = {
   id: number;
@@ -129,7 +129,7 @@ export default () => {
     return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
   }).length;
 
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(true);
 
   useEffect(() => {
     if (solvedCount === pieces.length && pieces.length > 0) {
@@ -142,8 +142,8 @@ export default () => {
       <div className="game-header">
         <h1 className="game-title">Log In.</h1>
         <p className="game-subtitle">
-          Drag and drop pieces of the login page from the tray into the 12x12 board. Pieces snap to
-          the grid when dropped inside.
+          Drag and drop pieces from the tray to build the login page in the 12x12 board. Pieces snap to
+          the grid when dropped inside. Enjoy :)
         </p>
       </div>
       <div
@@ -157,7 +157,7 @@ export default () => {
               y={0}
               width={BOARD_SIZE}
               height={BOARD_SIZE}
-              fill="#5c6457"
+              fill="#566d58"
               listening={false}
             />
             {Array.from({ length: GRID_COUNT * GRID_COUNT }).map((_, i) => (
@@ -167,8 +167,8 @@ export default () => {
                 y={Math.floor(i / GRID_COUNT) * CELL_SIZE}
                 width={CELL_SIZE}
                 height={CELL_SIZE}
-                stroke="#a4ad9b"
-                strokeWidth={1.35}
+                stroke="#9ca395"
+                strokeWidth={3}
                 listening={false}
               />
             ))}
@@ -186,7 +186,7 @@ export default () => {
               y={0}
               width={SIDEBAR_WIDTH}
               height={BOARD_SIZE}
-              fill="#a0ae8a"
+              fill="#536355"
               listening={false}
             />
             <Text
