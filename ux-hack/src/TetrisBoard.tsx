@@ -169,7 +169,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
     return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
   }).length;
 
-  const [isCompleted, setIsCompleted] = useState(true);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const [lastCaptchaSolvedCheckpoint, setLastCaptchaSolvedCheckpoint] =
     useState(0);
