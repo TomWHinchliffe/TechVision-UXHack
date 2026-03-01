@@ -75,9 +75,6 @@ const getSpawnPosition = (piece: ManifestPiece) => {
 const clampToBoard = (value: number, max: number) =>
   Math.min(Math.max(value, 0), max);
 
-const clampToStage = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
-
 const Piece = ({
   piece,
   x,
@@ -120,6 +117,8 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
   const confetti = useRef(new Audio("/sounds/confetti.mp3"));
   const countdown = useRef(new Audio("/sounds/countdown.mp3"));
   const pop = useRef(new Audio("/sounds/pop.mp3"));
+  const victory = useRef(new Audio("/sounds/victory.mp3"));
+  const lose = useRef(new Audio("/sounds/lose.m4a"));
   const [fullBoardImage] = useImage(fullImage);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -144,12 +143,6 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
 
     const width = targetPiece.wCells * CELL_SIZE;
     const height = targetPiece.hCells * CELL_SIZE;
-
-    const isInsideBoard =
-      targetX >= 0 &&
-      targetY >= 0 &&
-      targetX + width <= BOARD_SIZE &&
-      targetY + height <= BOARD_SIZE;
 
     const nextX = clampToBoard(
       Math.round(targetX / CELL_SIZE) * CELL_SIZE,
@@ -176,7 +169,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
     return Math.abs(entry.x - correctX) < 1 && Math.abs(entry.y - correctY) < 1;
   }).length;
 
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(true);
 
   const [lastCaptchaSolvedCheckpoint, setLastCaptchaSolvedCheckpoint] =
     useState(0);
@@ -330,12 +323,15 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
       return;
     }
 
-    const normalizedInput = captchaInput.trim().toLowerCase();
-    const normalizedAnswer = activeCaptcha.answer.trim().toLowerCase();
+    const normalizedInput = captchaInput.trim();
+    const normalizedAnswer = activeCaptcha.answer.trim();
 
     if (normalizedInput !== normalizedAnswer) {
       resetBoard();
+      playSound(lose.current);
       return;
+    } else if (normalizedInput == normalizedAnswer) {
+      playSound(victory.current);
     }
 
     setActiveCaptcha(null);
@@ -431,7 +427,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
                   piece={entry.piece}
                   x={entry.x}
                   y={entry.y}
-                  draggable={!isCorrect && !activeCaptcha}
+                  draggable={!activeCaptcha}
                   dragBounds={{
                     minX: 0,
                     minY: 0,

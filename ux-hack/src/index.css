@@ -172,3 +172,22 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
+
+.shake-screen {
+  animation: extreme-shake 3000ms ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes extreme-shake {
+  0%,50%{
+    rotate: 22.5deg
+  }
+
+  25%, 75%{
+    rotate: -22.5deg
+  }
+
+  100%{
+    rotate: 0deg
+  }
+}
