@@ -4,7 +4,7 @@ import LeafBackground from "./LeafBackground";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const sixseven = useRef(new Audio("/sounds/sixseven.mp3"));
+  const sixseven = useRef(new Audio("/sounds/victory.mp3"));
 
   if (isLoggedIn) {
     sixseven.current.currentTime = 0;
@@ -22,7 +22,7 @@ function App() {
         >
           <img
             style={{ width: "500px" }}
-            src="/sixsevengif.gif"
+            src="/thumbs_up.png"
             alt="Success animation"
           />
         </div>
