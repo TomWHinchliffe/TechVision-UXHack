@@ -25,7 +25,7 @@ const PASSWORD_INPUT_X = 170;
 const PASSWORD_INPUT_Y = 420;
 const SUBMIT_BUTTON_X = 165;
 const SUBMIT_BUTTON_Y = 530;
-const CAPTCHA_TRIGGER_STEP = 6;
+const CAPTCHA_TRIGGER_STEP = 5;
 
 type CaptchaType =
   | "human_phrase"
@@ -194,7 +194,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
     }
 
     if (selectedType === "duck_math") {
-      const duckCount = 2 + Math.floor(Math.random() * 20);
+      const duckCount = 2 + Math.floor(Math.random() * 10);
       return {
         type: "duck_math",
         prompt: `2 + ${"🦆".repeat(duckCount)} = ?`,
@@ -205,10 +205,10 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
 
     if (selectedType === "reverse_brain") {
       const wordPool = [
-        "sixsevennnn",
-        "plsvoteforus",
-        "linkedinpost",
-        "lmaooooooooo",
+        "login",
+        "votepls",
+        "linkedin",
+        "puzzle",
       ];
       const selectedWord =
         wordPool[Math.floor(Math.random() * wordPool.length)];
