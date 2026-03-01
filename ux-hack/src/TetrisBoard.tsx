@@ -188,7 +188,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
       return {
         type: "human_phrase",
         prompt: 'Type: "IaMdeFinItElYHumAN"',
-        answer: "I am definitely human",
+        answer: "IaMdeFinItElYHumAN",
         timeLimitMs: 10000,
       };
     }
