@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Stage, Layer, Image, Rect, Text } from "react-konva";
 import useImage from "use-image";
 import manifestData from "./data";
@@ -11,6 +11,11 @@ const SIDEBAR_WIDTH = 280;
 const STAGE_WIDTH = BOARD_SIZE + SIDEBAR_WIDTH;
 const CORRECT_PIECE_COLOR = "#FFFF00";
 
+const playSound = (sound: HTMLAudioElement) => {
+  sound.currentTime = 0;
+  sound.play();
+};
+
 const DEFAULT_PIECE_BORDER = "#5e6960";
 const LOGIN_USERNAME = "admin";
 const LOGIN_PASSWORD = "password123";
@@ -20,6 +25,21 @@ const PASSWORD_INPUT_X = 170;
 const PASSWORD_INPUT_Y = 420;
 const SUBMIT_BUTTON_X = 165;
 const SUBMIT_BUTTON_Y = 530;
+const CAPTCHA_TRIGGER_STEP = 6;
+
+type CaptchaType =
+  | "human_phrase"
+  | "duck_math"
+  | "reverse_brain"
+  | "human_delay";
+
+type CaptchaChallenge = {
+  type: CaptchaType;
+  prompt: string;
+  answer: string;
+  timeLimitMs: number;
+  minDelayMs?: number;
+};
 
 type ManifestPiece = {
   id: number;
@@ -97,10 +117,19 @@ type TetrisBoardProps = {
 };
 
 export default ({ onLoginSuccess }: TetrisBoardProps) => {
+  const confetti = useRef(new Audio("/sounds/confetti.mp3"));
+  const countdown = useRef(new Audio("/sounds/countdown.mp3"));
+  const pop = useRef(new Audio("/sounds/pop.mp3"));
   const [fullBoardImage] = useImage(fullImage);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [activeCaptcha, setActiveCaptcha] = useState<CaptchaChallenge | null>(
+    null,
+  );
+  const [captchaInput, setCaptchaInput] = useState("");
+  const [captchaStartedAt, setCaptchaStartedAt] = useState(0);
+  const [captchaTimeLeft, setCaptchaTimeLeft] = useState(0);
   const pieces = useMemo(() => manifestData as ManifestPiece[], []);
   const [piecePositions, setPiecePositions] = useState<PiecePosition[]>(() =>
     pieces.map((piece) => {
@@ -132,6 +161,8 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
       BOARD_SIZE - height,
     );
 
+    playSound(pop.current);
+
     setPiecePositions((prev) =>
       prev.map((entry) =>
         entry.piece.id === pieceId ? { ...entry, x: nextX, y: nextY } : entry,
@@ -147,8 +178,123 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
 
   const [isCompleted, setIsCompleted] = useState(false);
 
+  const [lastCaptchaSolvedCheckpoint, setLastCaptchaSolvedCheckpoint] =
+    useState(0);
+
+  const createCaptchaChallenge = (): CaptchaChallenge => {
+    const captchaTypes: CaptchaType[] = [
+      "human_phrase",
+      "duck_math",
+      "reverse_brain",
+      "human_delay",
+    ];
+    const selectedType =
+      captchaTypes[Math.floor(Math.random() * captchaTypes.length)];
+
+    if (selectedType === "human_phrase") {
+      return {
+        type: "human_phrase",
+        prompt: 'Type: "IaMdeFinItElYHumAN"',
+        answer: "I am definitely human",
+        timeLimitMs: 10000,
+      };
+    }
+
+    if (selectedType === "duck_math") {
+      const duckCount = 2 + Math.floor(Math.random() * 20);
+      return {
+        type: "duck_math",
+        prompt: `2 + ${"🦆".repeat(duckCount)} = ?`,
+        answer: String(2 + duckCount),
+        timeLimitMs: 10000,
+      };
+    }
+
+    if (selectedType === "reverse_brain") {
+      const wordPool = [
+        "sixsevennnn",
+        "plsvoteforus",
+        "linkedinpost",
+        "lmaooooooooo",
+      ];
+      const selectedWord =
+        wordPool[Math.floor(Math.random() * wordPool.length)];
+      return {
+        type: "reverse_brain",
+        prompt: `Type this backwards: ${selectedWord}`,
+        answer: selectedWord.split("").reverse().join(""),
+        timeLimitMs: 10000,
+      };
+    }
+
+    return {
+      type: "human_delay",
+      prompt: 'Wait at least 2 seconds, then type "ok" and submit',
+      answer: "ok",
+      timeLimitMs: 10000,
+      minDelayMs: 2000,
+    };
+  };
+
+  const openCaptcha = () => {
+    const nextCaptcha = createCaptchaChallenge();
+    setActiveCaptcha(nextCaptcha);
+    setCaptchaInput("");
+    setCaptchaStartedAt(Date.now());
+    setCaptchaTimeLeft(Math.ceil(nextCaptcha.timeLimitMs / 1000));
+    playSound(countdown.current);
+  };
+
+  useEffect(() => {
+    const shouldTrigger =
+      solvedCount > 0 &&
+      solvedCount % CAPTCHA_TRIGGER_STEP === 0 &&
+      !isCompleted &&
+      !activeCaptcha &&
+      solvedCount !== lastCaptchaSolvedCheckpoint;
+
+    if (shouldTrigger) {
+      setLastCaptchaSolvedCheckpoint(solvedCount);
+      openCaptcha();
+    }
+  }, [solvedCount, lastCaptchaSolvedCheckpoint, isCompleted, activeCaptcha]);
+
+  const resetBoard = () => {
+    setPiecePositions(
+      pieces.map((piece) => {
+        const spawn = getSpawnPosition(piece);
+        return { piece, x: spawn.x, y: spawn.y };
+      }),
+    );
+    setIsCompleted(false);
+    setLastCaptchaSolvedCheckpoint(0);
+    setActiveCaptcha(null);
+    setCaptchaInput("");
+    setCaptchaStartedAt(0);
+    setCaptchaTimeLeft(0);
+  };
+
+  useEffect(() => {
+    if (!activeCaptcha) return;
+
+    const timer = window.setInterval(() => {
+      const elapsedMs = Date.now() - captchaStartedAt;
+      const remainingMs = activeCaptcha.timeLimitMs - elapsedMs;
+
+      if (remainingMs <= 0) {
+        resetBoard();
+        return;
+      }
+
+      setCaptchaTimeLeft(Math.ceil(remainingMs / 1000));
+    }, 250);
+
+    return () => window.clearInterval(timer);
+  }, [activeCaptcha, captchaStartedAt]);
+
   useEffect(() => {
     if (solvedCount === pieces.length && pieces.length > 0) {
+      playSound(confetti.current);
       setIsCompleted(true);
     }
   }, [solvedCount, pieces.length]);
@@ -165,13 +311,48 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
     setLoginError("Invalid username or password");
   };
 
+  const handleCaptchaSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!activeCaptcha) return;
+
+    const elapsedMs = Date.now() - captchaStartedAt;
+    if (elapsedMs > activeCaptcha.timeLimitMs) {
+      resetBoard();
+      return;
+    }
+
+    if (
+      activeCaptcha.type === "human_delay" &&
+      activeCaptcha.minDelayMs &&
+      elapsedMs < activeCaptcha.minDelayMs
+    ) {
+      resetBoard();
+      return;
+    }
+
+    const normalizedInput = captchaInput.trim().toLowerCase();
+    const normalizedAnswer = activeCaptcha.answer.trim().toLowerCase();
+
+    if (normalizedInput !== normalizedAnswer) {
+      resetBoard();
+      return;
+    }
+
+    setActiveCaptcha(null);
+    setCaptchaInput("");
+    setCaptchaStartedAt(0);
+    setCaptchaTimeLeft(0);
+  };
+
   return (
     <div className="game-shell">
       <div className="game-header">
         <h1 className="game-title">Log In.</h1>
         <p className="game-subtitle">
-          Drag and drop pieces from the tray to build the login page in the 12x12 board. Pieces snap to
-          the grid when dropped inside. The username is "admin", and the password is "password123". Login if you dare! Enjoy :)
+          Drag and drop pieces from the tray to build the login page in the
+          12x12 board. Pieces snap to the grid when dropped inside. The username
+          is "admin", and the password is "password123". Login if you dare!
+          Enjoy :)
         </p>
       </div>
       <div
@@ -250,7 +431,7 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
                   piece={entry.piece}
                   x={entry.x}
                   y={entry.y}
-                  draggable={!isCorrect}
+                  draggable={!isCorrect && !activeCaptcha}
                   dragBounds={{
                     minX: 0,
                     minY: 0,
@@ -266,13 +447,33 @@ export default ({ onLoginSuccess }: TetrisBoardProps) => {
                   }
                   borderWidth={isCompleted ? 1.5 : isCorrect ? 6 : 1.5}
                   onDragEnd={(e: any) =>
-                    movePiece(entry.piece.id, e.target.x(), e.target.y())
+                    activeCaptcha
+                      ? undefined
+                      : movePiece(entry.piece.id, e.target.x(), e.target.y())
                   }
                 />
               );
             })}
           </Layer>
         </Stage>
+        {activeCaptcha ? (
+          <form className="captcha-overlay" onSubmit={handleCaptchaSubmit}>
+            <h2 className="captcha-title">Captcha Check</h2>
+            <p className="captcha-prompt">{activeCaptcha.prompt}</p>
+            <p className="captcha-timer">Time left: {captchaTimeLeft}s</p>
+            <input
+              className="captcha-input"
+              type="text"
+              value={captchaInput}
+              onChange={(event) => setCaptchaInput(event.target.value)}
+              placeholder="Enter captcha answer"
+              autoFocus
+            />
+            <button className="captcha-button" type="submit">
+              Submit Captcha
+            </button>
+          </form>
+        ) : null}
         {isCompleted ? (
           <form className="login-form-overlay" onSubmit={handleLoginSubmit}>
             <input
