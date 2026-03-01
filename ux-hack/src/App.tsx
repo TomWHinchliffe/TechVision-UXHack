@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import TetrisBoard from "./TetrisBoard";
+import LeafBackground from "./LeafBackground";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,7 +30,11 @@ function App() {
     );
   }
 
-  return <TetrisBoard onLoginSuccess={() => setIsLoggedIn(true)} />;
+  return (<>
+    <TetrisBoard onLoginSuccess={() => setIsLoggedIn(true)} />
+    <LeafBackground />
+  </>
+);
 }
 
 export default App;
