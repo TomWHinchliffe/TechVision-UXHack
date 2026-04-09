@@ -1,73 +1,65 @@
-# React + TypeScript + Vite
+# Login Puzzle Hell
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Login Puzzle Hell is a React + TypeScript + Vite project that turns the login flow into a playful UX challenge. The app is built to feel like a puzzle-driven authentication experience, with animated interactions and creative onboarding components.
 
-Currently, two official plugins are available:
+## What this project includes
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 19 with TypeScript
+- Vite development server for fast refresh
+- A puzzle-style login UI and interactive screens
+- ESLint configuration for code quality
 
-## React Compiler
+## Run locally
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Install dependencies:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Start the development server:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+3. Open your browser at:
+
+```text
+http://localhost:3000
+```
+
+> Note: The app is configured to serve on port `3000` so it matches the Docker container mapping.
+
+## Run with Docker
+
+To run the app in Docker, build the image and publish port `3000`:
+
+```bash
+docker build -t login-puzzle-hell .
+docker run -p 3000:3000 login-puzzle-hell
+```
+
+Then open:
+
+```text
+http://localhost:3000
+```
+
+## Build for production
+
+```bash
+npm run build
+```
+
+## Project structure
+
+- `src/` — application source files
+- `src/App.tsx` — main app entry
+- `src/main.tsx` — Vite bootstrap
+- `vite.config.ts` — Vite configuration
+- `package.json` — scripts and dependencies
+
+## Notes
+
+This repo is designed as a UX hack project, focusing on a fun and engaging login experience rather than a full production authentication backend.
